@@ -1,4 +1,4 @@
-const Todo = require("../models/todoModel")
+const Todo = require("../models/todoModel");
 
 const getAllTodos = async(req, res) => {
   const todos = await Todo.find({});
