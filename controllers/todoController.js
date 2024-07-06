@@ -2,7 +2,7 @@ const Todo = require("../models/todoModel");
 
 const getAllTodos = async (req, res) => {
   try {
-    const todos = await Todo.find({});
+    const todos = await Todo.find({ user: req.user._id });
     res.json(todos);
   } catch (error) {
     console.error("Error fetching todos:", error);
@@ -12,7 +12,7 @@ const getAllTodos = async (req, res) => {
 
 const getTodoById = async (req, res) => {
   try {
-    const todo = await Todo.findById(req.params.todoId).exec();
+    const todo = await Todo.findOne({ _id: req.params.todoId, user: req.user._id }).exec();
     if (!todo) {
       return res.status(404).send("Todo not found");
     }
@@ -25,7 +25,13 @@ const getTodoById = async (req, res) => {
 
 const addTodo = async (req, res) => {
   try {
-    const todo = new Todo(req.body);
+    if (!req.user) {
+      return res.status(401).send("Unauthorized access");
+    }
+    const todo = new Todo({
+      ...req.body,
+      user: req.user._id,
+    });
     await todo.save();
     res.status(201).json(todo);
   } catch (error) {
@@ -36,8 +42,8 @@ const addTodo = async (req, res) => {
 
 const updateTodo = async (req, res) => {
   try {
-    const updatedTodo = await Todo.findByIdAndUpdate(
-      req.params.todoId,
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { _id: req.params.todoId, user: req.user._id },
       req.body,
       { new: true }
     );
@@ -53,8 +59,8 @@ const updateTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
   try {
-    const deleteTodo = await Todo.findByIdAndDelete(req.params.todoId);
-    if (!deleteTodo) {
+    const deletedTodo = await Todo.findOneAndDelete({ _id: req.params.todoId, user: req.user._id });
+    if (!deletedTodo) {
       return res.status(404).send("Todo not found");
     }
     res.send("Todo Deleted");

@@ -6,12 +6,13 @@ const {
   updateTodo,
   deleteTodo,
 } = require("../controllers/todoController");
+const protect = require("../middlewares/protect");
 const router = express.Router();
 
-router.get("/", getAllTodos);
-router.get("/:todoId", getTodoById);
-router.post("/", addTodo);
-router.patch("/:todoId", updateTodo);
-router.delete("/:todoId", deleteTodo);
+router.get("/",protect, getAllTodos);
+router.get("/:todoId",protect, getTodoById);
+router.post("/",protect, addTodo);
+router.patch("/:todoId",protect, updateTodo);
+router.delete("/:todoId",protect, deleteTodo);
 
 module.exports = router;
