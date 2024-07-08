@@ -42,9 +42,14 @@ const addTodo = async (req, res) => {
 
 const updateTodo = async (req, res) => {
   try {
+     // Validate input data
+     const { todo, completed } = req.body;
+     if (typeof todo !== 'string' || typeof completed !== 'boolean') {
+       return res.status(400).send("Invalid data format");
+     }
     const updatedTodo = await Todo.findOneAndUpdate(
       { _id: req.params.todoId, user: req.user._id },
-      req.body,
+      {todo,completed}, // Update the todo and completed fields
       { new: true }
     );
     if (!updatedTodo) {
@@ -53,7 +58,7 @@ const updateTodo = async (req, res) => {
     res.json(updatedTodo);
   } catch (error) {
     console.error("Error updating todo:", error);
-    res.status(400).send("Bad Request");
+    res.status(500).send("Internal Server Error");
   }
 };
 
