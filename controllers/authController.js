@@ -95,16 +95,59 @@ const resetPasswordRequest = async (req, res) => {
     }
     // create a token using user.id
     const token = jwt.sign({ userId: user._id }, process.env.JWT_RESET_KEY, {
-      expiresIn: "15m",
+      expiresIn: "5m",
     });
     // nodemailer configure
-    const resetUrl = `${process.env.API_BASE_URL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.FRONT_END_URL}/reset-password?token=${token}`;
     const mailOptions = {
       to: user.email,
       from: process.env.EMAIL_USER,
       subject: "Password Reset Request",
-      html: `Click <a href="${resetUrl}">here</a> to reset your password. This link will expire in 15 minutes.`,
+      html: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                padding: 20px;
+              }
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+              .button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                margin-top: 20px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h2 style="text-align: center; color: #007bff;">Password Reset Request</h2>
+              <p>Hello,</p>
+              <p>You have requested to reset your password. Click the link below to proceed:</p>
+              <p style="text-align: center;">
+                <a href="${resetUrl}" class="button">Reset Password</a>
+              </p>
+              <p style="color: #666;">This link will expire in 5 minutes.</p>
+              <p>If you did not request this, please ignore this email.</p>
+            </div>
+          </body>
+        </html>
+      `,
     };
+    
+    
     // send mail to user
     await transporter.sendMail(mailOptions);
     res.send("Password reset email sent");
